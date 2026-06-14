@@ -109,7 +109,19 @@ app.post('/api/runs', async (req, res) => {
       return res.status(400).json({ error: 'Research topic is required.' });
     }
 
-    const apiKey = getGeminiApiKey(req);
+    const settings = db.getSettings();
+    const apiProvider = settings.apiProvider || 'gemini';
+    
+    let apiKey = null;
+    if (apiProvider === 'gemini') {
+      apiKey = getGeminiApiKey(req);
+    } else if (apiProvider === 'huggingface') {
+      const hfToken = settings.hfToken;
+      if (!hfToken || hfToken.trim() === '') {
+        return res.status(400).json({ error: 'Hugging Face API Token is missing. Please configure it in Settings.' });
+      }
+    }
+
     const agents = db.getAgents();
 
     if (agents.length === 0) {
