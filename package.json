@@ -1,7 +1,7 @@
 {
-  "name": "knowledge-base-bot",
+  "name": "autogen-studio",
   "version": "1.0.0",
-  "description": "Internal Knowledge Base Bot using Express, React, and Gemini API",
+  "description": "Multi-Agent Startup Validator & Report Compiler Console using React, Express, and Hugging Face/Gemini API",
   "main": "server.js",
   "type": "module",
   "scripts": {
