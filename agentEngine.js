@@ -64,7 +64,7 @@ async function generateHFContentWithRetry(model, prompt, systemInstruction, hfTo
       messages.push({ role: "user", content: prompt });
 
       const response = await fetch(
-        `https://router.huggingface.co/v1/chat/completions`,
+        `https://api-inference.huggingface.co/v1/chat/completions`,
         {
           headers: {
             Authorization: `Bearer ${hfToken}`,
