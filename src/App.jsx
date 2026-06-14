@@ -498,6 +498,9 @@ export default function App() {
                       className="custom-input"
                       required={selectedProvider === 'huggingface'}
                     />
+                    <p style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '3px', lineHeight: '1.4' }}>
+                      Ensure your fine-grained token has the <span style={{ color: 'var(--neon-cyan)', fontWeight: 'bold' }}>"Make calls to Inference Providers"</span> permission enabled in your Hugging Face settings.
+                    </p>
                   </div>
 
                   <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
