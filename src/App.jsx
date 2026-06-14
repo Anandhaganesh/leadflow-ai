@@ -62,9 +62,10 @@ export default function App() {
   
   // Settings & Status
   const [showSettings, setShowSettings] = useState(false);
-  const [settings, setSettings] = useState({ geminiApiKey: '' });
+  const [settings, setSettings] = useState({ geminiApiKey: '', geminiModel: 'gemini-2.5-flash' });
   const [apiStatus, setApiStatus] = useState({ envKeyConfigured: false, hasKey: false, agentsCount: 0, runsCount: 0 });
   const [customApiKey, setCustomApiKey] = useState('');
+  const [selectedModel, setSelectedModel] = useState('gemini-2.5-flash');
   
   // Tab selector for workspace: 'chat' (Agent dialogue) or 'report' (Final Report)
   const [workspaceTab, setWorkspaceTab] = useState('chat');
@@ -136,8 +137,9 @@ export default function App() {
       if (res.ok) {
         const data = await res.json();
         setApiStatus(data);
-        setSettings(data.settings || { geminiApiKey: '' });
+        setSettings(data.settings || { geminiApiKey: '', geminiModel: 'gemini-2.5-flash' });
         setCustomApiKey(data.settings?.geminiApiKey || '');
+        setSelectedModel(data.settings?.geminiModel || 'gemini-2.5-flash');
       }
     } catch (err) {
       console.error("Failed to fetch backend status:", err);
@@ -195,7 +197,7 @@ export default function App() {
       const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ geminiApiKey: customApiKey })
+        body: JSON.stringify({ geminiApiKey: customApiKey, geminiModel: selectedModel })
       });
       if (res.ok) {
         fetchStatus();
@@ -372,7 +374,7 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid var(--border-light)', fontSize: '11px' }}>
             <Server style={{ width: '14px', height: '14px', color: 'var(--neon-cyan)' }} />
             <span style={{ color: 'var(--text-secondary)' }}>Model status:</span>
-            <span style={{ fontWeight: '800', color: 'var(--neon-cyan)' }}>Gemini-2.5-Flash</span>
+            <span style={{ fontWeight: '800', color: 'var(--neon-cyan)' }}>{settings.geminiModel || 'gemini-2.5-flash'}</span>
           </div>
 
           {apiStatus.hasKey ? (
@@ -410,11 +412,12 @@ export default function App() {
             </div>
             
             <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: '1.5' }}>
-              Paste your Google AI Studio API Key below. This key enables Dr. Atlas to access search tools and Sterling to write detailed markdown reports. Keys are stored securely in your dashboard configurations.
+              Paste your Google AI Studio API Key and select your preferred LLM model. Keys are stored securely in your dashboard configurations.
             </p>
 
             <form onSubmit={handleSaveSettings} className="flex-col gap-3">
-              <div className="form-group">
+              <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+                <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Gemini API Key:</label>
                 <input 
                   type="password" 
                   placeholder="AI Studio API Key (AIzaSy...)" 
@@ -424,12 +427,28 @@ export default function App() {
                   required
                 />
               </div>
+
+              <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+                <label style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 'bold' }}>Gemini Model Selection:</label>
+                <select 
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="custom-input"
+                  style={{ background: 'var(--bg-input)', cursor: 'pointer', appearance: 'auto' }}
+                >
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Default - strict 20/day quota)</option>
+                  <option value="gemini-2.5-pro">Gemini 2.5 Pro (Advanced - strict 50/day quota)</option>
+                  <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast & responsive - recommended)</option>
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (Highest daily free-tier quota)</option>
+                  <option value="gemini-1.5-pro">Gemini 1.5 Pro (Alternative Pro)</option>
+                </select>
+              </div>
               
               <div className="flex-row justify-between align-center" style={{ marginTop: '5px' }}>
                 <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" style={{ fontSize: '10px', color: 'var(--neon-cyan)', textDecoration: 'underline' }}>
                   Get free key here (30 seconds)
                 </a>
-                <button type="submit" className="btn btn-primary">Connect Agent Key</button>
+                <button type="submit" className="btn btn-primary">Save Settings</button>
               </div>
             </form>
           </div>

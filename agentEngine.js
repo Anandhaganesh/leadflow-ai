@@ -55,11 +55,15 @@ async function generateContentWithRetry(model, request, maxRetries = 5) {
 export async function runSimulation(runId, topic, agents, geminiApiKey, db) {
   try {
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const standardModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const settings = db.getSettings();
+    const modelName = settings.geminiModel || 'gemini-2.5-flash';
+    console.log(`[Simulation][${runId}] Initializing models with: ${modelName}`);
+
+    const standardModel = genAI.getGenerativeModel({ model: modelName });
     
     // Enable Google Search Grounding for the search model
     const searchModel = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: modelName,
       tools: [{ googleSearch: {} }]
     });
 
