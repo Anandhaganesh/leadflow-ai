@@ -104,7 +104,7 @@ app.get('/api/runs', (req, res) => {
 // Start Run Simulation
 app.post('/api/runs', async (req, res) => {
   try {
-    const { topic } = req.body;
+    const { topic, workflow } = req.body;
     if (!topic || topic.trim() === '') {
       return res.status(400).json({ error: 'Research topic is required.' });
     }
@@ -129,8 +129,8 @@ app.post('/api/runs', async (req, res) => {
     }
 
     // 1. Create run record in database
-    const run = db.addRun(topic);
-    console.log(`[Server] Starting simulation run: ${run.id} for topic: "${topic}"`);
+    const run = db.addRun(topic, workflow || 'compiler');
+    console.log(`[Server] Starting simulation run: ${run.id} for topic: "${topic}" (Workflow: ${workflow || 'compiler'})`);
 
     // 2. Trigger asynchronous agent collaboration loop in background
     runSimulation(run.id, topic, agents, apiKey, db)

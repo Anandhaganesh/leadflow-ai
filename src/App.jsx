@@ -59,6 +59,7 @@ export default function App() {
   const [topic, setTopic] = useState('');
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeRunId, setActiveRunId] = useState(null);
+  const [activeWorkflow, setActiveWorkflow] = useState('compiler');
   
   // Settings & Status
   const [showSettings, setShowSettings] = useState(false);
@@ -232,7 +233,7 @@ export default function App() {
       const res = await fetch('/api/runs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic })
+        body: JSON.stringify({ topic, workflow: activeWorkflow })
       });
       const data = await res.json();
       if (res.ok) {
@@ -350,17 +351,132 @@ export default function App() {
   const getActiveAgentId = () => {
     if (!selectedRun || selectedRun.status !== 'running') return null;
     const msgCount = selectedRun.messages ? selectedRun.messages.length : 0;
-    switch (msgCount) {
-      case 0: return 'researcher';
-      case 1: return 'synthesizer';
-      case 2: return 'writer';
-      case 3: return 'critic';
-      case 4: return 'writer'; // writer does final revision
-      default: return null;
+    const workflow = selectedRun.workflow || 'compiler';
+    if (workflow === 'validator') {
+      switch (msgCount) {
+        case 0: return 'valerie';
+        case 1: return 'pax';
+        case 2: return 'damien';
+        case 3: return 'vera';
+        default: return null;
+      }
+    } else {
+      switch (msgCount) {
+        case 0: return 'researcher';
+        case 1: return 'synthesizer';
+        case 2: return 'writer';
+        case 3: return 'critic';
+        case 4: return 'writer'; // writer does final revision
+        default: return null;
+      }
     }
   };
 
   const activeAgentId = getActiveAgentId();
+  const currentWorkflow = selectedRun ? (selectedRun.workflow || 'compiler') : activeWorkflow;
+  const filteredAgents = agents.filter(agent => {
+    if (currentWorkflow === 'validator') {
+      return ['valerie', 'pax', 'damien', 'vera'].includes(agent.id);
+    } else {
+      return ['researcher', 'synthesizer', 'writer', 'critic'].includes(agent.id) ||
+             (!['valerie', 'pax', 'damien', 'vera'].includes(agent.id));
+    }
+  });
+
+  // Switch workflow helper
+  const handleSwitchWorkflow = (workflow) => {
+    if (isSimulating) return;
+    setActiveWorkflow(workflow);
+    setSelectedRunId('');
+    setSelectedRun(null);
+    setWorkspaceTab('chat');
+  };
+
+  // Helper to render collaboration roadmap nodes dynamically
+  const renderRoadmap = () => {
+    const isValidator = (selectedRun.workflow || 'compiler') === 'validator';
+    const msgCount = selectedRun.messages ? selectedRun.messages.length : 0;
+    
+    if (isValidator) {
+      const steps = [
+        { id: 'valerie', num: 1, label: 'Valerie (Market)', color: '#ff9f43', activeCond: activeAgentId === 'valerie', doneCond: msgCount > 0 },
+        { id: 'pax', num: 2, label: 'Pax (Tech)', color: '#1dd1a1', activeCond: activeAgentId === 'pax', doneCond: msgCount > 1 },
+        { id: 'damien', num: 3, label: 'Damien (Risk)', color: '#ee5253', activeCond: activeAgentId === 'damien', doneCond: msgCount > 2 },
+        { id: 'vera', num: 4, label: 'Vera (Report)', color: '#10ac84', activeCond: activeAgentId === 'vera', doneCond: selectedRun.status === 'completed' }
+      ];
+      return (
+        <div className="flex-row align-center justify-between" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px', width: '100%' }}>
+          {steps.map((step, idx) => (
+            <React.Fragment key={step.id}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                <span style={{ 
+                  background: step.doneCond ? step.color : step.activeCond ? step.color : 'var(--text-muted)', 
+                  color: '#000', 
+                  width: '16px', 
+                  height: '16px', 
+                  borderRadius: '50%', 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  fontWeight: 'bold', 
+                  fontSize: '9px' 
+                }}>
+                  {step.num}
+                </span>
+                <span style={{ 
+                  color: step.activeCond ? step.color : 'var(--text-secondary)', 
+                  fontWeight: step.activeCond ? 'bold' : 'normal' 
+                }}>
+                  {step.label}
+                </span>
+              </div>
+              {idx < steps.length - 1 && <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--text-muted)' }} />}
+            </React.Fragment>
+          ))}
+        </div>
+      );
+    } else {
+      const steps = [
+        { id: 'researcher', num: 1, label: 'Dr. Atlas (Scrape)', color: 'var(--neon-cyan)', activeCond: activeAgentId === 'researcher', doneCond: msgCount > 0 },
+        { id: 'synthesizer', num: 2, label: 'Skye (Outline)', color: 'var(--neon-violet)', activeCond: activeAgentId === 'synthesizer', doneCond: msgCount > 1 },
+        { id: 'writer', num: 3, label: 'Sterling (Draft)', color: 'var(--neon-blue)', activeCond: activeAgentId === 'writer' && msgCount === 2, doneCond: msgCount > 2 },
+        { id: 'critic', num: 4, label: 'Nova (Inspect)', color: 'var(--neon-pink)', activeCond: activeAgentId === 'critic', doneCond: msgCount > 3 },
+        { id: 'writer-final', num: 5, label: 'Sterling (Publish)', color: 'var(--neon-emerald)', activeCond: activeAgentId === 'writer' && msgCount === 4, doneCond: selectedRun.status === 'completed' }
+      ];
+      return (
+        <div className="flex-row align-center justify-between" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px', width: '100%' }}>
+          {steps.map((step, idx) => (
+            <React.Fragment key={step.id}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                <span style={{ 
+                  background: step.doneCond ? step.color : step.activeCond ? step.color : 'var(--text-muted)', 
+                  color: '#000', 
+                  width: '16px', 
+                  height: '16px', 
+                  borderRadius: '50%', 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  fontWeight: 'bold', 
+                  fontSize: '9px' 
+                }}>
+                  {step.num}
+                </span>
+                <span style={{ 
+                  color: step.activeCond ? step.color : 'var(--text-secondary)', 
+                  fontWeight: step.activeCond ? 'bold' : 'normal' 
+                }}>
+                  {step.label}
+                </span>
+              </div>
+              {idx < steps.length - 1 && <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--text-muted)' }} />}
+            </React.Fragment>
+          ))}
+        </div>
+      );
+    }
+  };
+
   const isKeyConfigured = settings.apiProvider === 'huggingface' ? !!settings.hfToken : apiStatus.hasKey;
 
   return (
@@ -549,7 +665,7 @@ export default function App() {
             </h4>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {agents.map((agent) => {
+              {filteredAgents.map((agent) => {
                 const isActive = activeAgentId === agent.id;
                 
                 return (
@@ -624,16 +740,29 @@ export default function App() {
                       className={`campaign-card ${isActive ? 'campaign-card-active' : ''}`}
                     >
                       <div className="flex-row justify-between align-center" style={{ marginBottom: '6px' }}>
-                        <h5 className="line-clamp-1" style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', maxWidth: '180px' }} title={r.topic}>
+                        <h5 className="line-clamp-1" style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', maxWidth: '130px' }} title={r.topic}>
                           {r.topic}
                         </h5>
-                        {isRunningThis ? (
-                          <span className="badge badge-auditing animate-pulse" style={{ fontSize: '7px' }}>Running</span>
-                        ) : r.status === 'failed' ? (
-                          <span className="badge badge-contacted" style={{ fontSize: '7px' }}>Failed</span>
-                        ) : (
-                          <span className="badge badge-ready" style={{ fontSize: '7px' }}>Ready</span>
-                        )}
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                          <span style={{ 
+                            fontSize: '7px', 
+                            padding: '2px 4px', 
+                            borderRadius: '4px',
+                            background: r.workflow === 'validator' ? 'rgba(255, 159, 67, 0.15)' : 'rgba(0, 242, 254, 0.15)',
+                            color: r.workflow === 'validator' ? '#ff9f43' : '#00f2fe',
+                            border: `1px solid ${r.workflow === 'validator' ? 'rgba(255, 159, 67, 0.3)' : 'rgba(0, 242, 254, 0.3)'}`,
+                            fontWeight: 'bold'
+                          }}>
+                            {r.workflow === 'validator' ? 'Validator' : 'Compiler'}
+                          </span>
+                          {isRunningThis ? (
+                            <span className="badge badge-auditing animate-pulse" style={{ fontSize: '7px' }}>Running</span>
+                          ) : r.status === 'failed' ? (
+                            <span className="badge badge-contacted" style={{ fontSize: '7px' }}>Failed</span>
+                          ) : (
+                            <span className="badge badge-ready" style={{ fontSize: '7px' }}>Ready</span>
+                          )}
+                        </div>
                       </div>
                       
                       <div className="flex-row justify-between align-center" style={{ fontSize: '9px', color: 'var(--text-muted)' }}>
@@ -668,7 +797,10 @@ export default function App() {
                   <span>Agent Research Console</span>
                 </h2>
                 <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                  Enter any topic. The agents will search Google, construct an outline, write content, fact-check the draft, and format a markdown report.
+                  {activeWorkflow === 'validator' 
+                    ? "Pitch your startup idea. The agents will check market competitor data, technical build feasibility, and analyze critical business risks."
+                    : "Enter any topic. The agents will search Google, construct an outline, write content, fact-check the draft, and format a markdown report."
+                  }
                 </p>
               </div>
 
@@ -698,17 +830,62 @@ export default function App() {
                       opacity: !selectedRun.finalReport ? 0.4 : 1
                     }}
                   >
-                    Compiled Report
+                    {currentWorkflow === 'validator' ? 'Validation Report' : 'Compiled Report'}
                   </button>
                 </div>
               )}
+            </div>
+
+            {/* Workflow Mode Tabs */}
+            <div style={{ display: 'flex', gap: '10px', marginTop: '2px', marginBottom: '2px' }}>
+              <button
+                type="button"
+                onClick={() => handleSwitchWorkflow('compiler')}
+                disabled={isSimulating}
+                className="btn"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  background: activeWorkflow === 'compiler' ? 'rgba(0, 242, 254, 0.12)' : 'rgba(255,255,255,0.01)',
+                  color: activeWorkflow === 'compiler' ? 'var(--neon-cyan)' : 'var(--text-secondary)',
+                  border: activeWorkflow === 'compiler' ? '1px solid rgba(0, 242, 254, 0.4)' : '1px solid var(--border-light)',
+                  cursor: isSimulating ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                📝 Report Compiler Team
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSwitchWorkflow('validator')}
+                disabled={isSimulating}
+                className="btn"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  background: activeWorkflow === 'validator' ? 'rgba(255, 159, 67, 0.12)' : 'rgba(255,255,255,0.01)',
+                  color: activeWorkflow === 'validator' ? '#ff9f43' : 'var(--text-secondary)',
+                  border: activeWorkflow === 'validator' ? '1px solid rgba(255, 159, 67, 0.4)' : '1px solid var(--border-light)',
+                  cursor: isSimulating ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                🚀 Startup Validator Team
+              </button>
             </div>
 
             <form onSubmit={handleStartSimulation} className="flex-row gap-3">
               <div style={{ flex: 1, position: 'relative' }}>
                 <input 
                   type="text" 
-                  placeholder="Input topic (e.g. History of Space Shuttle program, Room-temperature superconductors, etc.)"
+                  placeholder={activeWorkflow === 'validator'
+                    ? "Input your startup idea (e.g., An AI-powered automated dog walker matching app, Localized power tool marketplace...)"
+                    : "Input topic (e.g. History of Space Shuttle program, Room-temperature superconductors, etc.)"
+                  }
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                   className="custom-input"
@@ -732,7 +909,7 @@ export default function App() {
                 ) : (
                   <>
                     <Sparkles style={{ width: '13px', height: '13px', fill: '#000' }} />
-                    <span>Compile Report</span>
+                    <span>{activeWorkflow === 'validator' ? 'Validate Startup' : 'Compile Report'}</span>
                   </>
                 )}
               </button>
@@ -759,32 +936,7 @@ export default function App() {
                 <div className="glass-panel" style={{ padding: '14px 20px', background: 'rgba(2, 4, 8, 0.4)', borderRadius: '14px', border: '1px solid var(--border-light)' }}>
                   <span style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 'bold', display: 'block', marginBottom: '10px' }}>Collaboration Roadmap</span>
                   
-                  <div className="flex-row align-center justify-between" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
-                      <span style={{ background: selectedRun.messages.length > 0 ? 'var(--neon-cyan)' : activeAgentId === 'researcher' ? 'var(--neon-cyan)' : 'var(--text-muted)', color: '#000', width: '16px', height: '16px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '9px' }}>1</span>
-                      <span style={{ color: activeAgentId === 'researcher' ? 'var(--neon-cyan)' : 'var(--text-secondary)', fontWeight: activeAgentId === 'researcher' ? 'bold' : 'normal' }}>Dr. Atlas (Scrape)</span>
-                    </div>
-                    <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--text-muted)' }} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
-                      <span style={{ background: selectedRun.messages.length > 1 ? 'var(--neon-violet)' : activeAgentId === 'synthesizer' ? 'var(--neon-violet)' : 'var(--text-muted)', color: '#000', width: '16px', height: '16px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '9px' }}>2</span>
-                      <span style={{ color: activeAgentId === 'synthesizer' ? 'var(--neon-violet)' : 'var(--text-secondary)', fontWeight: activeAgentId === 'synthesizer' ? 'bold' : 'normal' }}>Skye (Outline)</span>
-                    </div>
-                    <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--text-muted)' }} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
-                      <span style={{ background: selectedRun.messages.length > 2 ? 'var(--neon-blue)' : activeAgentId === 'writer' && selectedRun.messages.length === 2 ? 'var(--neon-blue)' : 'var(--text-muted)', color: '#000', width: '16px', height: '16px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '9px' }}>3</span>
-                      <span style={{ color: activeAgentId === 'writer' && selectedRun.messages.length === 2 ? 'var(--neon-blue)' : 'var(--text-secondary)', fontWeight: activeAgentId === 'writer' && selectedRun.messages.length === 2 ? 'bold' : 'normal' }}>Sterling (Draft)</span>
-                    </div>
-                    <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--text-muted)' }} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
-                      <span style={{ background: selectedRun.messages.length > 3 ? 'var(--neon-pink)' : activeAgentId === 'critic' ? 'var(--neon-pink)' : 'var(--text-muted)', color: '#000', width: '16px', height: '16px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '9px' }}>4</span>
-                      <span style={{ color: activeAgentId === 'critic' ? 'var(--neon-pink)' : 'var(--text-secondary)', fontWeight: activeAgentId === 'critic' ? 'bold' : 'normal' }}>Nova (Inspect)</span>
-                    </div>
-                    <ChevronRight style={{ width: '12px', height: '12px', color: 'var(--text-muted)' }} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px' }}>
-                      <span style={{ background: selectedRun.status === 'completed' ? 'var(--neon-emerald)' : activeAgentId === 'writer' && selectedRun.messages.length === 4 ? 'var(--neon-cyan)' : 'var(--text-muted)', color: '#000', width: '16px', height: '16px', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '9px' }}>5</span>
-                      <span style={{ color: selectedRun.status === 'completed' ? 'var(--neon-emerald)' : activeAgentId === 'writer' && selectedRun.messages.length === 4 ? 'var(--neon-cyan)' : 'var(--text-secondary)', fontWeight: selectedRun.status === 'completed' ? 'bold' : 'normal' }}>Sterling (Publish)</span>
-                    </div>
-                  </div>
+                  {renderRoadmap()}
                 </div>
 
                 {/* Messages Feed */}

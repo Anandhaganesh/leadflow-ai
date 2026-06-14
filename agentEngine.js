@@ -170,53 +170,95 @@ export async function runSimulation(runId, topic, agents, geminiApiKey, db) {
       };
     }
 
-    // Find our specific agents by ID or index
-    const researcher = agents.find(a => a.id === 'researcher') || agents[0];
-    const synthesizer = agents.find(a => a.id === 'synthesizer') || agents[1];
-    const writer = agents.find(a => a.id === 'writer') || agents[2];
-    const critic = agents.find(a => a.id === 'critic') || agents[3];
+    const run = db.getRun(runId);
+    const workflow = run.workflow || 'compiler';
 
-    // --- STEP 1: Dr. Atlas (Researcher) ---
-    console.log(`[Simulation][${runId}] Step 1: Researching topic with Dr. Atlas...`);
-    const researchPrompt = `Conduct a detailed web search on the following topic and compile a comprehensive list of factual findings, statistics, events, and relevant references. Cite web links and dates where available. Topic: ${topic}`;
-    
-    const researchText = await runStep(researcher.prompt, researchPrompt, true);
-    db.addRunMessage(runId, researcher.name, researcher.role, researchText);
+    if (workflow === 'validator') {
+      // Find validator agents
+      const scout = agents.find(a => a.id === 'valerie') || agents.find(a => a.role?.toLowerCase().includes('scout')) || agents[0];
+      const tech = agents.find(a => a.id === 'pax') || agents.find(a => a.role?.toLowerCase().includes('architect')) || agents[1];
+      const risk = agents.find(a => a.id === 'damien') || agents.find(a => a.role?.toLowerCase().includes('risk')) || agents[2];
+      const partner = agents.find(a => a.id === 'vera') || agents.find(a => a.role?.toLowerCase().includes('partner')) || agents[3];
 
-    // --- STEP 2: Skye (Outline Architect) ---
-    console.log(`[Simulation][${runId}] Step 2: Structuring outline with Skye...`);
-    const outlinePrompt = `Here is the web research data collected: \n\n${researchText}\n\nBased on this research data, construct a detailed chapter outline in Markdown format. Specify what sub-points, headers, and statistics each chapter must cover.`;
-    
-    const outlineText = await runStep(synthesizer.prompt, outlinePrompt, false);
-    db.addRunMessage(runId, synthesizer.name, synthesizer.role, outlineText);
+      // --- STEP 1: Valerie (Market Scout) ---
+      console.log(`[Simulation][${runId}] Step 1: Researching market with Valerie...`);
+      const marketPrompt = `Conduct comprehensive market research on this startup idea: "${topic}". Search for existing competitors, market size, trends, similar failures, and target customer demographics. Provide a detailed summary of your findings.`;
+      const marketText = await runStep(scout.prompt, marketPrompt, true);
+      db.addRunMessage(runId, scout.name, scout.role, marketText);
 
-    // --- STEP 3: Sterling (Lead Writer) ---
-    console.log(`[Simulation][${runId}] Step 3: Drafting initial report with Sterling...`);
-    const draftPrompt = `Outline:\n${outlineText}\n\nFacts:\n${researchText}\n\nExpand this outline into a full, detailed report draft. Write out all sections completely in Markdown. Avoid summaries or placeholders—write out the complete text.`;
-    
-    const draftText = await runStep(writer.prompt, draftPrompt, false);
-    db.addRunMessage(runId, writer.name, writer.role, draftText);
+      // --- STEP 2: Pax (Tech Architect) ---
+      console.log(`[Simulation][${runId}] Step 2: Evaluating tech feasibility with Pax...`);
+      const techPrompt = `Evaluate the technical feasibility of this startup idea: "${topic}". Here is the market research data: \n\n${marketText}\n\nDraft a technical assessment detailing the complexity, suggested tech stack (frontend, backend, database, APIs), potential technical bottlenecks, and integration requirements.`;
+      const techText = await runStep(tech.prompt, techPrompt, false);
+      db.addRunMessage(runId, tech.name, tech.role, techText);
 
-    // --- STEP 4: Nova (Quality Inspector) ---
-    console.log(`[Simulation][${runId}] Step 4: Critiquing draft with Nova...`);
-    const critiquePrompt = `Here is the draft report to inspect: \n\n${draftText}\n\nReview this draft and provide detailed, constructive feedback on its tone, style, factual gaps, and readability. Suggest specific improvements.`;
-    
-    const critiqueText = await runStep(critic.prompt, critiquePrompt, false);
-    db.addRunMessage(runId, critic.name, critic.role, critiqueText);
+      // --- STEP 3: Damien (Risk Analyst) ---
+      console.log(`[Simulation][${runId}] Step 3: Playing Devil's Advocate with Damien...`);
+      const riskPrompt = `Critique this startup idea brutally: "${topic}". Here is the market research:\n${marketText}\n\nHere is the technical feasibility assessment:\n${techText}\n\nPoint out all potential flaws, operational/regulatory risks, scalability issues, business model weak spots, customer adoption challenges, and structural reasons this business might fail. Do not hold back.`;
+      const riskText = await runStep(risk.prompt, riskPrompt, false);
+      db.addRunMessage(runId, risk.name, risk.role, riskText);
 
-    // --- STEP 5: Sterling (Final Editor) ---
-    console.log(`[Simulation][${runId}] Step 5: Final polish with Sterling...`);
-    const finalPrompt = `Draft:\n${draftText}\n\nFeedback:\n${critiqueText}\n\nRefine and polish the draft based on the quality inspector's feedback. Output the final, complete, high-quality report in Markdown.`;
-    
-    const finalReport = await runStep(writer.prompt, finalPrompt, false);
-    db.addRunMessage(runId, `${writer.name} (Final)`, writer.role, finalReport);
+      // --- STEP 4: Vera (Investment Partner) ---
+      console.log(`[Simulation][${runId}] Step 4: Compiling final report with Vera...`);
+      const finalPrompt = `Startup Idea: "${topic}"\n\nMarket Research:\n${marketText}\n\nTechnical Feasibility:\n${techText}\n\nRisk Assessment:\n${riskText}\n\nSynthesize all these analysis phases into a final Startup Validation Report. Structure this report with an Executive Summary, a SWOT Matrix, a Technical Feasibility score, a Devil's Advocate Risk Score, and a final "Go/No-Go" investment recommendation with a rating out of 10.`;
+      const finalReport = await runStep(partner.prompt, finalPrompt, false);
+      db.addRunMessage(runId, `${partner.name} (Final)`, partner.role, finalReport);
 
-    // --- FINALIZE RUN ---
-    console.log(`[Simulation][${runId}] Run completed successfully!`);
-    db.updateRun(runId, {
-      status: 'completed',
-      finalReport
-    });
+      // --- FINALIZE RUN ---
+      console.log(`[Simulation][${runId}] Run completed successfully!`);
+      db.updateRun(runId, {
+        status: 'completed',
+        finalReport
+      });
+    } else {
+      // Find compiler agents by ID or index
+      const researcher = agents.find(a => a.id === 'researcher') || agents[0];
+      const synthesizer = agents.find(a => a.id === 'synthesizer') || agents[1];
+      const writer = agents.find(a => a.id === 'writer') || agents[2];
+      const critic = agents.find(a => a.id === 'critic') || agents[3];
+
+      // --- STEP 1: Dr. Atlas (Researcher) ---
+      console.log(`[Simulation][${runId}] Step 1: Researching topic with Dr. Atlas...`);
+      const researchPrompt = `Conduct a detailed web search on the following topic and compile a comprehensive list of factual findings, statistics, events, and relevant references. Cite web links and dates where available. Topic: ${topic}`;
+      
+      const researchText = await runStep(researcher.prompt, researchPrompt, true);
+      db.addRunMessage(runId, researcher.name, researcher.role, researchText);
+
+      // --- STEP 2: Skye (Outline Architect) ---
+      console.log(`[Simulation][${runId}] Step 2: Structuring outline with Skye...`);
+      const outlinePrompt = `Here is the web research data collected: \n\n${researchText}\n\nBased on this research data, construct a detailed chapter outline in Markdown format. Specify what sub-points, headers, and statistics each chapter must cover.`;
+      
+      const outlineText = await runStep(synthesizer.prompt, outlinePrompt, false);
+      db.addRunMessage(runId, synthesizer.name, synthesizer.role, outlineText);
+
+      // --- STEP 3: Sterling (Lead Writer) ---
+      console.log(`[Simulation][${runId}] Step 3: Drafting initial report with Sterling...`);
+      const draftPrompt = `Outline:\n${outlineText}\n\nFacts:\n${researchText}\n\nExpand this outline into a full, detailed report draft. Write out all sections completely in Markdown. Avoid summaries or placeholders—write out the complete text.`;
+      
+      const draftText = await runStep(writer.prompt, draftPrompt, false);
+      db.addRunMessage(runId, writer.name, writer.role, draftText);
+
+      // --- STEP 4: Nova (Quality Inspector) ---
+      console.log(`[Simulation][${runId}] Step 4: Critiquing draft with Nova...`);
+      const critiquePrompt = `Here is the draft report to inspect: \n\n${draftText}\n\nReview this draft and provide detailed, constructive feedback on its tone, style, factual gaps, and readability. Suggest specific improvements.`;
+      
+      const critiqueText = await runStep(critic.prompt, critiquePrompt, false);
+      db.addRunMessage(runId, critic.name, critic.role, critiqueText);
+
+      // --- STEP 5: Sterling (Final Editor) ---
+      console.log(`[Simulation][${runId}] Step 5: Final polish with Sterling...`);
+      const finalPrompt = `Draft:\n${draftText}\n\nFeedback:\n${critiqueText}\n\nRefine and polish the draft based on the quality inspector's feedback. Output the final, complete, high-quality report in Markdown.`;
+      
+      const finalReport = await runStep(writer.prompt, finalPrompt, false);
+      db.addRunMessage(runId, `${writer.name} (Final)`, writer.role, finalReport);
+
+      // --- FINALIZE RUN ---
+      console.log(`[Simulation][${runId}] Run completed successfully!`);
+      db.updateRun(runId, {
+        status: 'completed',
+        finalReport
+      });
+    }
 
   } catch (error) {
     console.error(`[Simulation][${runId}] Run failed with error:`, error);

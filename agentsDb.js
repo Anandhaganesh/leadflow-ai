@@ -38,41 +38,95 @@ export class AgentsDb {
   }
 
   seedDefaultAgents() {
-    if (!this.data.agents || this.data.agents.length === 0) {
-      this.data.agents = [
-        {
-          id: 'researcher',
-          name: 'Dr. Atlas',
-          role: 'Lead Researcher',
-          prompt: `You are the Lead Researcher. Your job is to search the web for the latest data, compile findings, and summarize key insights. Always focus on extracting cold, hard facts, statistics, and events. Always cite the websites or dates you found. Provide a highly detailed fact sheet.`,
-          avatarColor: '#00f2fe',
-          hasSearch: true
-        },
-        {
-          id: 'synthesizer',
-          name: 'Skye',
-          role: 'Outline Architect',
-          prompt: `You are the Outline Architect. Take the raw web research facts provided by the Researcher and organize them into a structured, chapter-by-chapter Markdown outline. For each chapter, specify what sub-points and key details it must cover. Do not write full paragraphs yet, just structure the skeleton of the report.`,
-          avatarColor: '#7f00ff',
-          hasSearch: false
-        },
-        {
-          id: 'writer',
-          name: 'Sterling',
-          role: 'Lead Writer',
-          prompt: `You are the Lead Writer. Take the structured outline and expand it into a comprehensive, detailed report in Markdown format. Ensure that you write full, descriptive, and informative paragraphs for each chapter. Avoid placeholders or summaries—write out the complete text. Integrate all the facts and statistics collected by the Researcher.`,
-          avatarColor: '#4facfe',
-          hasSearch: false
-        },
-        {
-          id: 'critic',
-          name: 'Nova',
-          role: 'Quality Inspector',
-          prompt: `You are the Quality Inspector. Review the draft report. Identify details that are missing, sentences that lack clarity, or areas where facts could be expanded. Provide clear, constructive bullet-point feedback on how the writer can improve the report. Do not rewrite the report yourself—simply provide the review.`,
-          avatarColor: '#ff007f',
-          hasSearch: false
-        }
-      ];
+    const defaultCompilerAgents = [
+      {
+        id: 'researcher',
+        name: 'Dr. Atlas',
+        role: 'Lead Researcher',
+        prompt: `You are the Lead Researcher. Your job is to search the web for the latest data, compile findings, and summarize key insights. Always focus on extracting cold, hard facts, statistics, and events. Always cite the websites or dates you found. Provide a highly detailed fact sheet.`,
+        avatarColor: '#00f2fe',
+        hasSearch: true
+      },
+      {
+        id: 'synthesizer',
+        name: 'Skye',
+        role: 'Outline Architect',
+        prompt: `You are the Outline Architect. Take the raw web research facts provided by the Researcher and organize them into a structured, chapter-by-chapter Markdown outline. For each chapter, specify what sub-points and key details it must cover. Do not write full paragraphs yet, just structure the skeleton of the report.`,
+        avatarColor: '#7f00ff',
+        hasSearch: false
+      },
+      {
+        id: 'writer',
+        name: 'Sterling',
+        role: 'Lead Writer',
+        prompt: `You are the Lead Writer. Take the structured outline and expand it into a comprehensive, detailed report in Markdown format. Ensure that you write full, descriptive, and informative paragraphs for each chapter. Avoid placeholders or summaries—write out the complete text. Integrate all the facts and statistics collected by the Researcher.`,
+        avatarColor: '#4facfe',
+        hasSearch: false
+      },
+      {
+        id: 'critic',
+        name: 'Nova',
+        role: 'Quality Inspector',
+        prompt: `You are the Quality Inspector. Review the draft report. Identify details that are missing, sentences that lack clarity, or areas where facts could be expanded. Provide clear, constructive bullet-point feedback on how the writer can improve the report. Do not rewrite the report yourself—simply provide the review.`,
+        avatarColor: '#ff007f',
+        hasSearch: false
+      }
+    ];
+
+    const defaultValidatorAgents = [
+      {
+        id: 'valerie',
+        name: 'Valerie',
+        role: 'Market Scout',
+        prompt: `You are the Market Scout. Your job is to conduct comprehensive market research on the proposed startup idea. Search the web for existing competitors, market size, trends, similar failures, and target customer demographics. Provide a detailed summary of your findings.`,
+        avatarColor: '#ff9f43',
+        hasSearch: true
+      },
+      {
+        id: 'pax',
+        name: 'Pax',
+        role: 'Tech Architect',
+        prompt: `You are the Tech Architect. Your job is to evaluate the technical feasibility of the proposed startup. Assess the complexity of the building blocks, suggest a recommended modern tech stack (frontend, backend, database, APIs), highlight infrastructure scaling issues, and estimate a realistic timeline/team size for MVP launch.`,
+        avatarColor: '#1dd1a1',
+        hasSearch: false
+      },
+      {
+        id: 'damien',
+        name: 'Damien',
+        role: 'Risk Analyst (Devil\'s Advocate)',
+        prompt: `You are the Risk Analyst. Your job is to play devil's advocate and critique the startup idea brutally. Identify the business model's flaws, operational risks, user acquisition hurdles, product-market fit struggles, potential competitor actions, and structural reasons this startup could fail. Do not hold back.`,
+        avatarColor: '#ee5253',
+        hasSearch: false
+      },
+      {
+        id: 'vera',
+        name: 'Vera',
+        role: 'Investment Partner',
+        prompt: `You are the Investment Partner. Your job is to synthesize the market research, technical feasibility, and risk analysis into a final Startup Validation Report. Structure your report in Markdown, including a clear Executive Summary, a SWOT Matrix, a Technical Viability rating, a Risk Exposure assessment, and a final "Go / No-Go" investment recommendation with a rating out of 10.`,
+        avatarColor: '#10ac84',
+        hasSearch: false
+      }
+    ];
+
+    if (!this.data.agents) this.data.agents = [];
+    
+    let updated = false;
+
+    defaultCompilerAgents.forEach(agent => {
+      if (!this.data.agents.some(a => a.id === agent.id)) {
+        this.data.agents.push(agent);
+        updated = true;
+      }
+    });
+
+    defaultValidatorAgents.forEach(agent => {
+      if (!this.data.agents.some(a => a.id === agent.id)) {
+        this.data.agents.push(agent);
+        updated = true;
+      }
+    });
+
+    if (updated || this.data.agents.length === 0) {
       this.save();
     }
   }
@@ -113,10 +167,11 @@ export class AgentsDb {
     return (this.data.runs || []).find(r => r.id === id);
   }
 
-  addRun(topic) {
+  addRun(topic, workflow = 'compiler') {
     const run = {
       id: `run-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       topic,
+      workflow,
       status: 'running',
       messages: [],
       finalReport: '',
