@@ -1,12 +1,12 @@
 name: LinkedIn Daily Auto-Post
 
 on:
-  # Backup cron — in case self-trigger chain ever breaks
+  # cron-job.org (external, reliable) triggers this at exactly 8:30 AM IST every day
+  # These internal crons are just emergency backup only
   schedule:
-    - cron: '0 3 * * *'   # 8:30 AM IST
-    - cron: '0 4 * * *'   # 9:30 AM IST
+    - cron: '0 3 * * *'   # 8:30 AM IST = 3:00 AM UTC (backup only)
 
-  # Manual trigger from GitHub website (phone-friendly)
+  # Manual trigger from GitHub website (useful from phone)
   workflow_dispatch:
 
 jobs:
@@ -40,24 +40,4 @@ jobs:
           git config --global user.email "campaign-bot@github-actions.com"
           git add linkedin_posts.json campaign_log.txt
           git diff --staged --quiet || git commit -m "✅ Day posted — $(date '+%Y-%m-%d %H:%M UTC')"
-          git push
-
-      - name: ⏰ Schedule Tomorrow's Post (Self-Trigger)
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          # Check if campaign is complete
-          REMAINING=$(node -e "const d=require('./linkedin_posts.json'); console.log(d.posts.filter(p=>p.status==='pending').length)")
-          echo "Posts remaining: $REMAINING"
-
-          if [ "$REMAINING" -gt "0" ]; then
-            # Schedule tomorrow's workflow via GitHub API — fires at 8:30 AM IST next day
-            TOMORROW=$(date -u -d "tomorrow 03:00" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v+1d -v3H -v0M -v0S +"%Y-%m-%dT%H:%M:%SZ")
-            echo "Self-trigger registered. Next post will fire automatically tomorrow."
-
-            # Use gh CLI to trigger workflow for next day
-            gh workflow run linkedin_post.yml --repo ${{ github.repository }} 2>/dev/null || true
-            echo "✅ Backup self-trigger sent to GitHub Actions queue"
-          else
-            echo "🎉 Campaign complete! All 15 posts published."
-          fi
+          git push || true
