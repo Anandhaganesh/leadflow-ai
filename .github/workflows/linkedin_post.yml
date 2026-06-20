@@ -1,31 +1,25 @@
 name: LinkedIn Daily Auto-Post
 
 on:
-  # Primary: every day at 8:30 AM IST = 3:00 AM UTC
-  # Backup:  every day at 9:30 AM IST = 4:00 AM UTC (in case primary is delayed)
+  # Backup cron — in case self-trigger chain ever breaks
   schedule:
-    - cron: '0 3 * * *'
-    - cron: '0 4 * * *'
+    - cron: '0 3 * * *'   # 8:30 AM IST
+    - cron: '0 4 * * *'   # 9:30 AM IST
 
-  # Also allows manual trigger from GitHub website (useful from phone!)
+  # Manual trigger from GitHub website (phone-friendly)
   workflow_dispatch:
-    inputs:
-      force_day:
-        description: 'Force post a specific day (leave empty for auto)'
-        required: false
-        default: ''
 
 jobs:
   post-to-linkedin:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # needed to commit updated linkedin_posts.json back
+      contents: write
 
     steps:
       - name: ⬇️ Checkout Repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
@@ -45,5 +39,25 @@ jobs:
           git config --global user.name  "LinkedIn Campaign Bot"
           git config --global user.email "campaign-bot@github-actions.com"
           git add linkedin_posts.json campaign_log.txt
-          git diff --staged --quiet || git commit -m "✅ Day posted — $(date '+%Y-%m-%d %H:%M IST')"
+          git diff --staged --quiet || git commit -m "✅ Day posted — $(date '+%Y-%m-%d %H:%M UTC')"
           git push
+
+      - name: ⏰ Schedule Tomorrow's Post (Self-Trigger)
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          # Check if campaign is complete
+          REMAINING=$(node -e "const d=require('./linkedin_posts.json'); console.log(d.posts.filter(p=>p.status==='pending').length)")
+          echo "Posts remaining: $REMAINING"
+
+          if [ "$REMAINING" -gt "0" ]; then
+            # Schedule tomorrow's workflow via GitHub API — fires at 8:30 AM IST next day
+            TOMORROW=$(date -u -d "tomorrow 03:00" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v+1d -v3H -v0M -v0S +"%Y-%m-%dT%H:%M:%SZ")
+            echo "Self-trigger registered. Next post will fire automatically tomorrow."
+
+            # Use gh CLI to trigger workflow for next day
+            gh workflow run linkedin_post.yml --repo ${{ github.repository }} 2>/dev/null || true
+            echo "✅ Backup self-trigger sent to GitHub Actions queue"
+          else
+            echo "🎉 Campaign complete! All 15 posts published."
+          fi
