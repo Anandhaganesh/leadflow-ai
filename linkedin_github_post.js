@@ -61,7 +61,6 @@ async function main() {
   const token = process.env.LINKEDIN_ACCESS_TOKEN;
   if (!token) {
     log('ERROR: LINKEDIN_ACCESS_TOKEN secret not set in GitHub repository.');
-    log('Go to: github.com → Your Repo → Settings → Secrets → Actions → New Secret');
     process.exit(1);
   }
 
@@ -74,6 +73,18 @@ async function main() {
     log('🎉 All 15 posts have been published! Campaign complete!');
     process.exit(0);
   }
+
+  // ── Guard: Don't post twice on the same day ──────────────────────────────
+  const lastSent = data.posts.filter(p => p.status === 'sent').pop();
+  if (lastSent && lastSent.sentAt) {
+    const lastSentDate = new Date(lastSent.sentAt).toISOString().slice(0, 10);
+    const todayDate   = new Date().toISOString().slice(0, 10);
+    if (lastSentDate === todayDate) {
+      log(`⏭️  Already posted today (Day ${lastSent.day} at ${lastSent.sentAt}). Skipping duplicate.`);
+      process.exit(0);
+    }
+  }
+
 
   log(`Posting Day ${nextPost.day}: "${nextPost.theme}"`);
 

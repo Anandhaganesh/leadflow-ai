@@ -1,9 +1,11 @@
 name: LinkedIn Daily Auto-Post
 
 on:
-  # Runs every day at 8:30 AM IST = 3:00 AM UTC
+  # Primary: every day at 8:30 AM IST = 3:00 AM UTC
+  # Backup:  every day at 9:30 AM IST = 4:00 AM UTC (in case primary is delayed)
   schedule:
     - cron: '0 3 * * *'
+    - cron: '0 4 * * *'
 
   # Also allows manual trigger from GitHub website (useful from phone!)
   workflow_dispatch:
