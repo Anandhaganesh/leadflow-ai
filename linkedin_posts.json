@@ -62,7 +62,7 @@
     {
       "day": 4,
       "theme": "My first real API call — Google Gemini",
-      "status": "pending",
+      "status": "sent",
       "scheduled_time": "08:30",
       "content": "9 lines of code.\n\nThat's ALL it takes to call one of the most powerful AI models on the planet.\n\nMost developers assume it's complicated. It's not. Here's exactly what it looks like 👇\n\nHere's what that looked like with Google Gemini API 👇\n\n```javascript\nconst response = await fetch(\n  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,\n  {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({\n      contents: [{ parts: [{ text: systemPrompt + userMessage }] }],\n      generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }\n    })\n  }\n);\n```\n\nThat's it. That's the bridge between natural language and software.\n\nWhat I learned from going raw API instead of using SDKs:\n→ You understand exactly what tokens cost\n→ You control temperature (creativity vs determinism)\n→ You learn what \"grounding\" actually means (Gemini's Google Search integration)\n→ Error handling becomes your best friend\n\nGemini's built-in Google Search grounding was a game-changer for my research agents — they could verify facts in real time, not just hallucinate from training data.\n\nI chose Gemini because:\n✅ Generous free tier for development\n✅ Native Google Search integration\n✅ 1M token context window on 1.5 Pro\n✅ Gemini 2.0 Flash is blazing fast for agentic workflows\n\nToday's challenge if you're learning: Make ONE raw API call to Gemini. No SDK. Just fetch. You'll learn more in 10 minutes than reading docs for an hour.\n\n#GoogleGemini #GenAI #LLM #AIEngineering #API #BuildInPublic #JavaScript #SoftwareDevelopment",
       "hashtags": [
@@ -72,7 +72,9 @@
         "#AIEngineering",
         "#API",
         "#BuildInPublic"
-      ]
+      ],
+      "sentAt": "2026-06-22T03:01:23.270Z",
+      "linkedinPostId": "urn:li:share:7474657762686287872"
     },
     {
       "day": 5,
