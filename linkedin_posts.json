@@ -79,7 +79,7 @@
     {
       "day": 5,
       "theme": "Multi-Agent AI Systems — The future of software",
-      "status": "pending",
+      "status": "sent",
       "scheduled_time": "08:30",
       "content": "I gave one AI agent 4 tasks at once.\n\nThe output was mediocre.\n\nThen I gave each task to a DIFFERENT AI agent, specialized for exactly that one job.\n\nThe difference was night and day. Here's why 👇\n\nA single LLM call has limits:\n❌ Can only focus on one instruction set\n❌ Context gets polluted when doing multiple tasks\n❌ No specialization — jack of all trades, master of none\n❌ No quality control\n\nA multi-agent system fixes all of this:\n\n🏗️ Each agent has ONE job and does it brilliantly\n→ Like a well-run company with specialized departments\n\n🔄 Agents pass context to each other\n→ Agent A's output becomes Agent B's input\n→ Information accumulates, not gets lost\n\n✅ Agents can check each other's work\n→ A \"critic\" agent reviews a \"writer\" agent's output\n→ Quality improves automatically through adversarial review\n\n🌐 Agents can use different models\n→ Use Gemini 2.0 Flash for fast reasoning\n→ Use Qwen 2.5 72B for deep analysis\n→ Pick the right model for the right job\n\nThe pattern I use in my project:\nUser Input → Orchestrator → Agent 1 (research) → Agent 2 (structure) → Agent 3 (write) → Agent 4 (critique) → Final Output\n\nThis is how serious AI products are built in 2025.\nNot one ChatGPT call. Coordinated agent teams.\n\nI'll reveal my exact architecture tomorrow. Stay tuned 👀\n\n#MultiAgentAI #AIAgents #GenAI #AIEngineering #LLM #MachineLearning #SoftwareArchitecture",
       "hashtags": [
@@ -89,7 +89,9 @@
         "#AIEngineering",
         "#LLM",
         "#MachineLearning"
-      ]
+      ],
+      "sentAt": "2026-06-23T03:01:24.054Z",
+      "linkedinPostId": "urn:li:share:7475020154003681280"
     },
     {
       "day": 6,
