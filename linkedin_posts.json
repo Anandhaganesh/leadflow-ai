@@ -96,7 +96,7 @@
     {
       "day": 6,
       "theme": "Project Teaser — Something big is coming",
-      "status": "pending",
+      "status": "sent",
       "scheduled_time": "08:30",
       "content": "I've been hiding a project for 90 days.\n\nNot out of fear — because I wanted it to be UNDENIABLY real before I showed anyone.\n\nTomorrow I'm revealing everything 👀\n\nTomorrow, I'm sharing the full project. 🚀\n\nHere's what I can tell you now:\n\n→ 7 AI agents with distinct personalities and specializations\n→ 2 complete multi-agent workflows\n→ Dual LLM providers (Google Gemini + HuggingFace open-source models)\n→ Real-time collaboration — you watch agents think and respond live\n→ Built end-to-end: React frontend, Node.js backend, custom agent orchestration engine\n\nOne workflow writes you a full research report on any topic.\nThe other validates your startup idea like a VC firm — with a brutal devil's advocate agent.\n\nAll without a human touching the output chain.\n\nI call it AutoGen Studio.\n\nTomorrow: Full reveal, live demo, GitHub link, and everything I learned building it.\n\nHit 🔔 to not miss it.\n\n#BuildInPublic #GenAI #MultiAgentAI #AIEngineering #AutoGen #ComingSoon #AI",
       "hashtags": [
@@ -105,7 +105,9 @@
         "#MultiAgentAI",
         "#AIEngineering",
         "#ComingSoon"
-      ]
+      ],
+      "sentAt": "2026-06-24T03:01:19.972Z",
+      "linkedinPostId": "urn:li:share:7475382524190281728"
     },
     {
       "day": 7,
