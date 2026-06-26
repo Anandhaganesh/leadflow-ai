@@ -62,3 +62,5 @@
 [2026-06-26T03:01:20.777Z] 📝 linkedin_posts.json updated — Day 8 marked as sent.
 [2026-06-26T03:01:20.777Z] 📊 7 posts remaining in campaign.
 [2026-06-26T03:01:20.777Z] ⏭️  Next up: Day 9 — "HuggingFace + Open Source Models" (tomorrow at 8:30 AM IST)
+[2026-06-26T06:48:19.173Z] === GitHub Actions Auto-Post Triggered ===
+[2026-06-26T06:48:19.176Z] ⏭️  Already posted today (Day 8 at 2026-06-26T03:01:20.776Z). Skipping duplicate.
