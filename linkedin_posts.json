@@ -130,7 +130,7 @@
     {
       "day": 8,
       "theme": "How AI agents actually talk to each other",
-      "status": "pending",
+      "status": "sent",
       "scheduled_time": "08:30",
       "content": "After yesterday's post, one question kept coming up:\n\n\"How do 7 AI agents coordinate without talking over each other?\"\n\nThe answer is embarrassingly simple — and it changed how I think about software architecture forever 👇\n\nIt's not magic. It's structured context passing.\n\n```\nAgent A Output → [Context Object] → Agent B System Prompt\n```\n\nEvery agent in my system receives:\n1. Its own ROLE (who it is, its expertise, its personality)\n2. The TASK (what it needs to produce)\n3. PREVIOUS CONTEXT (what agents before it already produced)\n\nHere's a simplified version of how Sterling (the writer) gets context from Skye (the outline architect):\n\n```javascript\nconst sterlingPrompt = `\n  You are Sterling, a lead technical writer.\n  \n  The Outline Architect has produced this structure:\n  ${skyeOutput}\n  \n  The Researcher provided these raw facts:\n  ${atlasOutput}\n  \n  Your task: Expand this outline into a complete, \n  well-cited report. Maintain all section headers.\n  Return only the final report in Markdown.\n`;\n```\n\nThat's it. That's inter-agent communication in its simplest form.\n\nThe art is in:\n→ What context to include (too much = token waste, too little = bad output)\n→ How to instruct each agent not to \"undo\" prior work\n→ How to handle failures gracefully (what if an agent returns garbage?)\n→ Streaming responses to the UI so users see it live\n\nThe hardest part wasn't the AI — it was the orchestration state machine that manages the sequential flow without blocking the event loop.\n\nI built a custom promise-chain system for this in Node.js.\n\nWant me to do a deep dive on the orchestration code? Comment below 👇\n\n#AIAgents #MultiAgentAI #GenAI #AIEngineering #NodeJS #SoftwareArchitecture #LLM #BuildInPublic",
       "hashtags": [
@@ -140,7 +140,9 @@
         "#AIEngineering",
         "#NodeJS",
         "#SoftwareArchitecture"
-      ]
+      ],
+      "sentAt": "2026-06-26T03:01:20.776Z",
+      "linkedinPostId": "urn:li:share:7476107303822282752"
     },
     {
       "day": 9,
