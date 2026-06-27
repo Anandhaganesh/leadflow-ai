@@ -147,7 +147,7 @@
     {
       "day": 9,
       "theme": "HuggingFace + Open Source Models",
-      "status": "pending",
+      "status": "sent",
       "scheduled_time": "08:30",
       "content": "I replaced a paid GPT-4 call with a FREE open-source model.\n\nThe output was better.\n\nHere's exactly which model, why it worked, and how it changed my entire AI stack 👇\n\n🤔 Why not just use one provider?\nVendor lock-in is real. API costs scale. And some open-source models are genuinely competitive with GPT-4.\n\nIn AutoGen Studio, I built a dual-provider system:\n- Google Gemini (for speed + Google Search grounding)\n- HuggingFace Serverless Inference API (for open-source models at zero server cost)\n\n🔥 Models I tested on HuggingFace:\n\n📊 Qwen 2.5 72B Instruct — Alibaba's model\n→ Surprisingly strong at structured analysis tasks\n→ Follows formatting instructions very precisely\n→ Great for the Startup Validator's SWOT analysis\n\n🦙 LLaMA 3.3 70B — Meta's model  \n→ Strong reasoning, excellent for long-form writing\n→ The Sterling (writer) agent shines with LLaMA\n\n⚡ Mistral 7B — When you need speed\n→ Fast, cheap, good for quick classification tasks\n\nThe HuggingFace Serverless API is remarkable:\n→ No server to manage\n→ Pay per token (or use free tier)\n→ Same unified API format across all models\n→ Switch models with ONE line of code\n\nKey insight: Different agents do better with different models. A 7B model for routing, a 72B model for deep analysis — that's real cost optimization.\n\n🔑 You need: A HuggingFace token with \"Make calls to Inference Providers\" permission.\n\nHave you tried any HuggingFace models in production? Which performed best?\n\n#HuggingFace #OpenSource #GenAI #LLM #Qwen #LLaMA #AIEngineering #MachineLearning",
       "hashtags": [
@@ -158,7 +158,9 @@
         "#Qwen",
         "#LLaMA",
         "#AIEngineering"
-      ]
+      ],
+      "sentAt": "2026-06-27T03:01:25.346Z",
+      "linkedinPostId": "urn:li:share:7476469710725767169"
     },
     {
       "day": 10,
