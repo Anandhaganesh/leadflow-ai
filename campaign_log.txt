@@ -70,3 +70,5 @@
 [2026-06-27T03:01:25.346Z] 📝 linkedin_posts.json updated — Day 9 marked as sent.
 [2026-06-27T03:01:25.346Z] 📊 6 posts remaining in campaign.
 [2026-06-27T03:01:25.346Z] ⏭️  Next up: Day 10 — "The hardest bug I fixed — and what it taught me" (tomorrow at 8:30 AM IST)
+[2026-06-27T06:25:27.367Z] === GitHub Actions Auto-Post Triggered ===
+[2026-06-27T06:25:27.370Z] ⏭️  Already posted today (Day 9 at 2026-06-27T03:01:25.346Z). Skipping duplicate.
