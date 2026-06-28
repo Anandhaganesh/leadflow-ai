@@ -78,3 +78,5 @@
 [2026-06-28T03:01:20.203Z] 📝 linkedin_posts.json updated — Day 10 marked as sent.
 [2026-06-28T03:01:20.203Z] 📊 5 posts remaining in campaign.
 [2026-06-28T03:01:20.203Z] ⏭️  Next up: Day 11 — "What Gemini 2.0 Flash taught me about speed vs quality" (tomorrow at 8:30 AM IST)
+[2026-06-28T06:57:47.509Z] === GitHub Actions Auto-Post Triggered ===
+[2026-06-28T06:57:47.512Z] ⏭️  Already posted today (Day 10 at 2026-06-28T03:01:20.202Z). Skipping duplicate.
