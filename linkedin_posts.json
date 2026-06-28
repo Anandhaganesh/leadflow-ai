@@ -165,7 +165,7 @@
     {
       "day": 10,
       "theme": "The hardest bug I fixed — and what it taught me",
-      "status": "pending",
+      "status": "sent",
       "scheduled_time": "08:30",
       "content": "I spent 2 full days debugging an AI pipeline that was technically working perfectly.\n\nThe bug wasn't in the code.\n\nIt was in how I was THINKING about AI. Here's what broke — and the lesson that changed everything 👇\n\nHere's what happened 👇\n\nI had 4 agents running sequentially. Each agent received all previous agents' outputs as context.\n\nEverything worked beautifully... until Agent 4.\n\nAgent 4 (Nova, the quality inspector) would start REWRITING the entire report from scratch instead of critiquing it.\n\n2 days of debugging. Here's what was wrong:\n\n❌ The Problem:\nI was injecting ALL previous context at full verbosity into Nova's prompt:\n→ Atlas's 2000-word research dump\n→ Skye's 800-word outline\n→ Sterling's 3000-word report\n\nTotal context: ~6000 tokens of input BEFORE the instruction.\n\nNova was so overwhelmed by content that it pattern-matched to \"I need to produce content\" rather than \"I need to critique content.\"\n\n✅ The Fix:\nSummary injection instead of full injection:\n→ Atlas: only key facts list (not full research)\n→ Skye: only section headers (not full outline)\n→ Sterling: full report (because Nova needs to critique this)\n→ Nova's instruction: placed FIRST, not last\n\nResult: Nova now produces laser-focused critiques every single time.\n\n🧠 The lesson:\nLLMs are not databases. They weight recent tokens more heavily. The ORDER and VOLUME of context matters as much as the content.\n\n\"Context engineering\" is just as important as prompt engineering.\n\nWhat's the hardest bug you've squashed in an AI project?\n\n#AIEngineering #Debugging #GenAI #LLM #BuildInPublic #SoftwareDevelopment #MachineLearning #ProblemSolving",
       "hashtags": [
@@ -175,7 +175,9 @@
         "#LLM",
         "#BuildInPublic",
         "#SoftwareDevelopment"
-      ]
+      ],
+      "sentAt": "2026-06-28T03:01:20.202Z",
+      "linkedinPostId": "urn:li:share:7476832076881633280"
     },
     {
       "day": 11,
