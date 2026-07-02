@@ -232,7 +232,7 @@
     {
       "day": 14,
       "theme": "The future of AI agents — my honest take",
-      "status": "pending",
+      "status": "sent",
       "scheduled_time": "08:30",
       "content": "In 2 years, this one skill will appear on half of all software engineering job descriptions.\n\nRight now, fewer than 1% of developers have it.\n\nHere's what's coming — and exactly how to position yourself ahead of it 👇\n\n🔮 What's coming:\n\n→ Memory-first agents\nRight now, most agents are stateless — they forget everything after a session. The next wave will have persistent memory, evolving knowledge bases, and long-term user context.\n\n→ Tool-native agents  \nAgents won't just call LLMs — they'll write code, execute it, read the output, fix the errors, and try again. Autonomously. Without human intervention.\n\n→ Agent-to-agent marketplaces\nSpecialized agents (legal research, financial modeling, code review) will be bought and plugged into workflows like APIs today.\n\n→ Human-in-the-loop by design, not by default\nThe best systems will include humans for approval checkpoints, not for execution steps.\n\n🤔 What this means for developers:\n\n→ Prompt engineering is becoming system design\n→ Context engineering is the new database optimization\n→ Agent orchestration patterns are the new design patterns\n→ \"AI Engineer\" is a real, distinct specialization — not just a marketing term\n\nI don't think traditional software is going away. But the LEVER that software engineers have just got 10x bigger with AI.\n\nThe developers who learn to orchestrate intelligent systems — not just write functions — will define the next decade.\n\nI'm actively building in this space. And I'm looking for teams doing the same.\n\nWhat's your take on the agent future?\n\n#AIAgents #FutureOfAI #GenAI #AIEngineering #MachineLearning #SoftwareEngineering #Tech #OpenToWork",
       "hashtags": [
@@ -242,7 +242,9 @@
         "#AIEngineering",
         "#MachineLearning",
         "#OpenToWork"
-      ]
+      ],
+      "sentAt": "2026-07-02T03:01:30.176Z",
+      "linkedinPostId": "urn:li:share:7478281670140289024"
     },
     {
       "day": 15,
